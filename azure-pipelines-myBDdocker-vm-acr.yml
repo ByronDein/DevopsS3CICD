@@ -23,13 +23,11 @@ stages:
             deploy:
               steps:
                 - script: |
-                    # Esperar a que apt este libre (VM recien creada)
                     while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
                       echo "Esperando que apt termine otra tarea..."
                       sleep 5
                     done
 
-                    # Verificar e instalar Azure CLI
                     if ! command -v az &> /dev/null; then
                       echo "Azure CLI no esta instalado. Instalando Azure CLI..."
                       export DEBIAN_FRONTEND=noninteractive
@@ -43,13 +41,11 @@ stages:
                   displayName: 'Verificar e Instalar Azure CLI'
 
                 - script: |
-                    # Esperar a que apt este libre
                     while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
                       echo "Esperando que apt termine otra tarea..."
                       sleep 5
                     done
 
-                    # Verificar e instalar Docker
                     if ! command -v docker &> /dev/null; then
                       echo "Docker no esta instalado. Instalando Docker..."
                       export DEBIAN_FRONTEND=noninteractive
@@ -73,27 +69,25 @@ stages:
                   displayName: 'Verificar e Instalar Docker'
 
                 - script: |
-                    # Login en ACR, pull y run de la imagen
+                    set -e
                     echo "Autenticandose en Azure Container Registry..."
-                    echo ${ACR_PASSWORD} | sudo docker login ${ACR_NAME}.azurecr.io -u ${ACR_USERNAME} --password-stdin
+                    echo "${ACR_PASSWORD}" | sudo docker login ${ACR_NAME}.azurecr.io -u ${ACR_USERNAME} --password-stdin
 
                     echo "Descargando la imagen desde ACR..."
-                    sudo docker pull ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:latest
+                    sudo docker pull ${ACR_NAME}.azurecr.io/${ACR_NAME}.azurecr.io/${IMAGE_NAME}:latest
 
-                    # Verificar si el contenedor ya existe
-                    if sudo docker ps -a --format '{{.Names}}' | grep -Eq "^mysql_container\$"; then
-                      echo "El contenedor 'mysql_container' ya existe. Iniciandolo nuevamente..."
-                      sudo docker start mysql_container
-                    else
-                      echo "Creando y ejecutando 'mysql_container'..."
-                      sudo docker run -d -p 3306:3306 --name mysql_container \
-                        -e MYSQL_ROOT_PASSWORD=Password123 \
-                        -e MYSQL_DATABASE=my_database \
-                        -e MYSQL_USER=mysqluser \
-                        -e MYSQL_PASSWORD=Password123 \
-                        ${ACR_NAME}.azurecr.io/${IMAGE_NAME}:latest
-                    fi
+                    echo "Eliminando contenedor anterior (si existe)..."
+                    sudo docker rm -f mysql_container || true
 
+                    echo "Creando y ejecutando mysql_container..."
+                    sudo docker run -d -p 3306:3306 --name mysql_container \
+                      -e MYSQL_ROOT_PASSWORD=Password123 \
+                      -e MYSQL_DATABASE=my_database \
+                      -e MYSQL_USER=mysqluser \
+                      -e MYSQL_PASSWORD=Password123 \
+                      ${ACR_NAME}.azurecr.io/${ACR_NAME}.azurecr.io/${IMAGE_NAME}:latest
+
+                    sleep 5
                     sudo docker ps
                   displayName: 'Descargar y ejecutar la imagen MySQL desde ACR'
 
