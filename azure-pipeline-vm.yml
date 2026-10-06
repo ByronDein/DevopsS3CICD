@@ -15,7 +15,7 @@ variables:
   securityGroupName: 'NSG-DEVOPS-S3'
   publicIpName: 'PublicIP-DEVOPS-S3'
   vmName: 'VM-DEVOPS-S3'
-  vmSize: 'Standard_B1s'  # SKU disponible en eastus2
+  vmSize: 'Standard_B1ms'  # SKU disponible en eastus2
   adminUsername: 'azureuser'
   adminPassword: 'XD.byrondein123'  # Contraseña en texto plano (ajustar según necesidad)
 
