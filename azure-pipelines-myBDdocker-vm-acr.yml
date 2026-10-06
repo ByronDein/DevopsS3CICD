@@ -2,7 +2,7 @@ trigger:
   branches:
     include:
       - main
-
+ 
 variables:
   VM_IP_PUBLICA: '20.110.76.231'  # Se debe colocar la IP pública de tu máquina virtual
   IMAGE_NAME: 'mybdmysql'
