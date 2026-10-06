@@ -8,7 +8,6 @@ variables:
   IMAGE_NAME: 'mybdmysql'
   ACR_NAME: 'acrdevops002agrupo03'
   ACR_USERNAME: 'acrdevops002agrupo03'
-  ACR_PASSWORD: '9QMRoidxj3Urx8M3At5NfEWhEI8ztzniVNqkPM31WLkaXZo3NHqTJQQJ99CJACHYHv6Eqg7NAAACAZCRpPyH'
 
 stages:
   - stage: Deploy
@@ -90,6 +89,8 @@ stages:
                     sleep 5
                     sudo docker ps
                   displayName: 'Descargar y ejecutar la imagen MySQL desde ACR'
+                  env:
+                    ACR_PASSWORD: $(ACR_PASSWORD)
 
                 - script: |
                     echo "Conectar a MySQL en la maquina virtual con la IP: ${VM_IP_PUBLICA}, puerto: 3306"
